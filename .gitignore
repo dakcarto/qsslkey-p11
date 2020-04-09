@@ -4,3 +4,5 @@ ui_*
 debug
 release
 vc90.pdb
+build_*
+certs/

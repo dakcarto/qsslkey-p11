@@ -3,12 +3,12 @@
 #include "qpkcs11.h"
 #include <QDebug>
 
-UI_METHOD * QPkcs11::s_uiMethod = 0;
+UI_METHOD * QPkcs11::s_uiMethod = Q_NULLPTR;
 
 struct qpkcs11_callback_data {
-	const void *engine_pkcs11_password;
-	const void *engine_pkcs11_prompt_info;
-	QPkcs11 *qpkcs11;
+    const void *engine_pkcs11_password;
+    const void *engine_pkcs11_prompt_info;
+    QPkcs11 *qpkcs11;
 };
 
 static int qpkcs11_ui_read(UI *ui, UI_STRING *uis)
@@ -18,30 +18,30 @@ static int qpkcs11_ui_read(UI *ui, UI_STRING *uis)
         return 0;
     }
 
-	struct qpkcs11_callback_data *data = (struct qpkcs11_callback_data *)UI_get_app_data(ui);
+    struct qpkcs11_callback_data *data = static_cast<struct qpkcs11_callback_data *>(UI_get_app_data(ui));
 
-	if (!data->qpkcs11)
+    if (!data->qpkcs11)
         return 0;
 
-	QString prompt(UI_get0_output_string(uis));
-	QString pin = data->qpkcs11->authenticationRequired(prompt);
+    QString prompt(UI_get0_output_string(uis));
+    QString pin = data->qpkcs11->authenticationRequired(prompt);
 
-	UI_set_result(ui, uis, pin.toLocal8Bit().data());
+    UI_set_result(ui, uis, pin.toLocal8Bit().data());
 
     return 1;
 }
 
 QPkcs11::QPkcs11(const QString & module, QObject *parent)
-	: QObject(parent),
-	  m_module(module),
-	  m_engine(0)
+    : QObject(parent),
+      m_module(module),
+      m_engine(Q_NULLPTR)
 {
-	init();
+    init();
 }
 
 QPkcs11::~QPkcs11()
 {
-	if (m_engine) {
+    if (m_engine) {
         ENGINE_finish(m_engine);
         ENGINE_free(m_engine);
     }
@@ -50,54 +50,54 @@ QPkcs11::~QPkcs11()
 QSslCertificate
 QPkcs11::loadCertificate(const QString & label)
 {
-	QSslCertificate certificate;
+    QSslCertificate certificate;
 
-	struct {
-		const char *cert_id;
+    struct {
+        const char *cert_id;
         X509 *cert;
-    } params = { NULL, NULL };
+    } params = { Q_NULLPTR, Q_NULLPTR };
 
-	if (!label.isEmpty())
-		params.cert_id = label.toLocal8Bit().data();
+    if (!label.isEmpty())
+        params.cert_id = label.toLocal8Bit().data();
 
-    if (!ENGINE_ctrl_cmd(m_engine, "LOAD_CERT_CTRL", 0, &params, NULL, 0))
-        params.cert = NULL;
+    if (!ENGINE_ctrl_cmd(m_engine, "LOAD_CERT_CTRL", 0, &params, Q_NULLPTR, 0))
+        params.cert = Q_NULLPTR;
 
     if (!params.cert) {
         qWarning("Unable to load certificate from HSM");
-	} else {
-		certificate = QSslCertificate(QByteArray_from_X509(params.cert));
-		X509_free(params.cert);
-	}
+    } else {
+        certificate = QSslCertificate(QByteArray_from_X509(params.cert));
+        X509_free(params.cert);
+    }
 
-	return certificate;
+    return certificate;
 }
 
 QSslKey
 QPkcs11::loadKey(const QString & label)
 {
     EVP_PKEY *k;
-	QSslKey key;
-	struct qpkcs11_callback_data data;
+    QSslKey key;
+    struct qpkcs11_callback_data data;
 
-	data.engine_pkcs11_password = NULL;
-	data.engine_pkcs11_prompt_info = NULL;
-	data.qpkcs11 = this;
+    data.engine_pkcs11_password = Q_NULLPTR;
+    data.engine_pkcs11_prompt_info = Q_NULLPTR;
+    data.qpkcs11 = this;
 
-	if (!s_uiMethod) {
-		s_uiMethod = UI_create_method("QPkcs11 PIN prompt");
+    if (!s_uiMethod) {
+        s_uiMethod = UI_create_method("QPkcs11 PIN prompt");
         UI_method_set_reader(s_uiMethod, qpkcs11_ui_read);
-	}
+    }
 
     k = ENGINE_load_private_key(m_engine, label.toLocal8Bit().data(), s_uiMethod, &data);
 
-	if (!k) {
+    if (!k) {
         qWarning("Unable to load private key from HSM: %s",
                  ERR_reason_error_string(ERR_get_error()));
     } else
-	    key = QSslKey(Qt::HANDLE(k));
+        key = QSslKey(Qt::HANDLE(k));
 
-	return key;
+    return key;
 }
 
 QByteArray QPkcs11::QByteArray_from_X509(X509 *x509)
@@ -108,12 +108,12 @@ QByteArray QPkcs11::QByteArray_from_X509(X509 *x509)
     }
 
     // Use i2d_X509 to convert the X509 to an array.
-    int length = i2d_X509(x509, 0);
+    int length = i2d_X509(x509, Q_NULLPTR);
     QByteArray array;
     array.resize(length);
     char *data = array.data();
     char **dataP = &data;
-    unsigned char **dataPu = (unsigned char **)dataP;
+    unsigned char **dataPu = reinterpret_cast<unsigned char **>(dataP);
     if (i2d_X509(x509, dataPu) < 0)
         return QByteArray();
 
@@ -135,7 +135,7 @@ QByteArray QPkcs11::QByteArray_from_X509(X509 *x509)
 void QPkcs11::init()
 {
     ENGINE *e;/*
-	    ERR_load_crypto_strings();
+    ERR_load_crypto_strings();
     SSL_load_error_strings();
     OpenSSL_add_all_algorithms();
     SSL_library_init();*/
@@ -152,17 +152,17 @@ void QPkcs11::init()
     if (!ENGINE_ctrl_cmd_string(e, "SO_PATH", "./engine_pkcs11.dll", 0) ||
         !ENGINE_ctrl_cmd_string(e, "ID", "pkcs11", 0) ||
         !ENGINE_ctrl_cmd_string(e, "LIST_ADD", "1", 0) ||
-        !ENGINE_ctrl_cmd_string(e, "LOAD", NULL, 0) ||
+        !ENGINE_ctrl_cmd_string(e, "LOAD", Q_NULLPTR, 0) ||
         !ENGINE_ctrl_cmd_string(e, "MODULE_PATH", m_module.toLocal8Bit().data(), 0) ||
-        !ENGINE_ctrl_cmd_string(e, "VERBOSE", NULL, 1) ||
+        !ENGINE_ctrl_cmd_string(e, "VERBOSE", Q_NULLPTR, 1) ||
         !ENGINE_init(e)) {
         qWarning("Unable to initialize PKCS#11 library: %s",
                  ERR_reason_error_string(ERR_get_error()));
         goto error;
     }
 
-	m_engine = e;
-    return ;
+    m_engine = e;
+    return;
 error:
     if (e)
         ENGINE_free(e);
@@ -171,8 +171,8 @@ error:
 QString
 QPkcs11::authenticationRequired(const QString & prompt)
 {
-	QAuthenticator authenticator;
-	qDebug() << "signal" << prompt;
-	emit authenticationRequired(prompt, &authenticator);
-	return authenticator.password();
+    QAuthenticator authenticator;
+    qDebug() << "signal" << prompt;
+    emit authenticationRequired(prompt, &authenticator);
+    return authenticator.password();
 }
