@@ -6,3 +6,6 @@ release
 vc90.pdb
 build_*
 certs/
+pkcs11-spy-logfile
+
+card-notes/

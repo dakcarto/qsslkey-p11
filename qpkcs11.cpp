@@ -35,17 +35,19 @@ QPkcs11::QPkcs11(QObject *parent, const QString &module)
   // Check if module is available
   if ( mModule.isEmpty() || ! QFileInfo::exists( mModule ) ) {
     logMsg(QStringLiteral( "PKCS#11 module empty or not found: %1").arg( mModule ), QtWarningMsg);
-  }
+  } else {
 
-//  OPENSSL_init_crypto(OPENSSL_INIT_ADD_ALL_CIPHERS \
-//          | OPENSSL_INIT_ADD_ALL_DIGESTS \
-//          | OPENSSL_INIT_LOAD_CONFIG, Q_NULLPTR);
+  //  OPENSSL_init_crypto(OPENSSL_INIT_ADD_ALL_CIPHERS \
+  //          | OPENSSL_INIT_ADD_ALL_DIGESTS \
+  //          | OPENSSL_INIT_LOAD_CONFIG, Q_NULLPTR);
 
-  // Set up PKCS context
-  if (loadContext()){
-    if (loadModule()) {
-      loadSlots();
+    // Set up PKCS context
+    if (loadContext()){
+      if (loadModule()) {
+        loadSlots();
+      }
     }
+
   }
 
 }
@@ -73,7 +75,7 @@ void QPkcs11::logMsg(const QString &msgTxt, QtMsgType msgType)
       break;
     case QtFatalMsg:
       qFatal("%s", qUtf8Printable(msgTxt));
-      break;
+      //break;
     case QtInfoMsg:
       qInfo("%s", qUtf8Printable(msgTxt));
   }
@@ -383,7 +385,7 @@ void QPkcs11::parseSlotsForToken(bool dumpInfo) // public slot
 
   for (auto t_slot : mSlotsWithToken) {
     logMsg(QStringLiteral("  token label: %1").arg(t_slot->token->label), QtDebugMsg);
-    if (1) {
+    if (dumpInfo) {
       logMsg(dumpSlotInfo(t_slot), QtDebugMsg);
     }
   }

@@ -23,12 +23,19 @@ fi
 # SoftHSM
 #pkcs11_mod=/usr/local/opt/softhsm/lib/softhsm/libsofthsm2.so
 #pkcs11_mod="${conda_env}/lib/softhsm/libsofthsm2.so"
-token_str='pkcs11:token=SoftHSM-JillPerson;object=jill-key;type=private;pin-value=9900'
+#token_str='pkcs11:token=SoftHSM-JillPerson;object=jill-key;type=private;pin-value=9900'
 #token_str='pkcs11:token=SoftHSM-JillPerson;object=jill-key;type=private'
 
 # OpenSC
- pkcs11_mod=/Library/OpenSC/lib/opensc-pkcs11.so
+pkcs11_mod=/Library/OpenSC/lib/opensc-pkcs11.so
+
+export PKCS11SPY=/Library/OpenSC/lib/opensc-pkcs11.so
+export PKCS11SPY_OUTPUT=pkcs11-spy-logfile
+#pkcs11_mod=/Library/OpenSC/lib/pkcs11-spy.so
 # token_str='pkcs11:token=Jill%20Person;object=CAC%20Cert%206;type=private;pin-value=9900'
+
+# keychain-pkcs11
+#pkcs11_mod="/usr/local/lib/keychain-pkcs11.dylib"
 
 # Just test with test PEM cert/key bundle
 #${build_dir}/qsslkey-p11

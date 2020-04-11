@@ -170,7 +170,7 @@ int test(const QString &pkcs11Module = QString(), const QString &certHash = QStr
     socket.setProtocol(QSsl::TlsV1_2);
     socket.setPeerVerifyMode(QSslSocket::VerifyPeer);
 
-//    QString url("server.planet.local");
+//    QString url("server.planet.test");
 //    quint16 port(8443);
     QString url("openssl.planet.local");
     quint16 port(4443);
@@ -179,19 +179,19 @@ int test(const QString &pkcs11Module = QString(), const QString &certHash = QStr
     qDebug("\nStarting secure connection...");
     res = secureConnection(socket, url, port);
 
-    unsigned long sleep_secs = 5;
+//    unsigned long sleep_secs = 5;
 
-    qDebug("Sleep for %ld seconds...", sleep_secs);
-    QThread::sleep(sleep_secs);
+//    qDebug("Sleep for %ld seconds...", sleep_secs);
+//    QThread::sleep(sleep_secs);
 
-    qDebug("\nStarting second secure connection...");
-    res = secureConnection(socket, url, port);
+//    qDebug("\nStarting second secure connection...");
+//    res = secureConnection(socket, url, port);
 
-    qDebug("Sleep for %ld seconds...", sleep_secs);
-    QThread::sleep(sleep_secs);
+//    qDebug("Sleep for %ld seconds...", sleep_secs);
+//    QThread::sleep(sleep_secs);
 
-    qDebug("\nStarting third secure connection...");
-    res = secureConnection(socket, url, port);
+//    qDebug("\nStarting third secure connection...");
+//    res = secureConnection(socket, url, port);
 
     return res;
 }

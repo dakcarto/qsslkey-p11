@@ -52,7 +52,7 @@ openssl s_server \
 # For macOS conda-forge OpenSSL
 #
 # $ openssl version
-# OpenSSL 1.1.1d  10 Sep 2019
+#  OpenSSL 1.1.1f  31 Mar 2020
 #
 # $ openssl s_server --help
 #  Usage: s_server [options]
