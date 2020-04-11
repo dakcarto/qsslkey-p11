@@ -45,7 +45,12 @@ add_executable(qsslkey-p11-engine
 
 add_executable(qsslkey-p11
   qsslkey-p11.cpp
-  qgspkcs11.cpp
+  qpkcs11.cpp
+)
+
+add_executable(qpkcs11-test
+  qpkcs11-test.cpp
+  qpkcs11.cpp
 )
 
 include_directories(
@@ -54,6 +59,14 @@ include_directories(
   ${Qt5Network_INCLUDE_DIRS}
   ${OPENSSL_INCLUDE_DIR}
   ${LIBP11_INCLUDE_DIR}
+)
+
+target_link_libraries(qsslkey-p11-engine
+  Qt5::Core
+  Qt5::Widgets
+  Qt5::Network
+  ${OPENSSL_CRYPTO_LIBRARY}
+  ${OPENSSL_SSL_LIBRARY}
 )
 
 target_link_libraries(qsslkey-p11
@@ -65,13 +78,14 @@ target_link_libraries(qsslkey-p11
   ${LIBP11_LIBRARY}
 )
 
-target_link_libraries(qsslkey-p11-engine
+target_link_libraries(qpkcs11-test
   Qt5::Core
   Qt5::Widgets
   Qt5::Network
   ${OPENSSL_CRYPTO_LIBRARY}
   ${OPENSSL_SSL_LIBRARY}
-)
+  ${LIBP11_LIBRARY}
+  )
 
 # Make sure you link your targets with this command. It can also link libraries and
 # even flags, so linking a target that does not exist will not give a configure-time error.

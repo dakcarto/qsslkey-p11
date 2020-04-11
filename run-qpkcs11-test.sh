@@ -51,7 +51,7 @@ pin=9900
 #  $sha1
 
 # Test that PKCS#11 can locate a cert with specific SHA1 hash, then login and load its private key
-${build_dir}/qsslkey-p11 \
+${build_dir}/qpkcs11-test \
   $pkcs11_mod \
   $sha1 \
   $pin

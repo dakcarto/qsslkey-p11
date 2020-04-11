@@ -40,7 +40,7 @@ openssl s_server \
   -build_chain \
   -chainCApath ${TEST_CERTS} \
   -chainCAfile ${TEST_CERTS}/server-ca.pem \
-  -verifyCAfile ${TEST_CERTS}/client-ca.pem \
+  -verifyCAfile ${TEST_CERTS}/client-ca-all.pem \
   -tls1_2 \
   -state \
   -www
